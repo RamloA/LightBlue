@@ -16,9 +16,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import com.punchthrough.bean.sdk.Bean;
 import com.punchthrough.bean.sdk.BeanDiscoveryListener;
+import com.punchthrough.bean.sdk.BeanListener;
 import com.punchthrough.bean.sdk.BeanManager;
+import com.punchthrough.bean.sdk.message.BeanError;
+import com.punchthrough.bean.sdk.message.Callback;
+import com.punchthrough.bean.sdk.message.DeviceInfo;
+import com.punchthrough.bean.sdk.message.ScratchBank;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void Onconnect(View view) {
-
+        bean.connect(this, beanListener);
     }
 
 
@@ -149,8 +156,71 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    Bean bean = beans[0];
 
+    BeanListener beanListener = new BeanListener() {
 
+        @Override
+        public void onConnected() {
+            System.out.println("connected to Bean!");
+            bean.readDeviceInfo(new Callback<DeviceInfo>() {
+                @Override
+                public void onResult(DeviceInfo deviceInfo) {
+                    System.out.println(deviceInfo.hardwareVersion());
+                    System.out.println(deviceInfo.firmwareVersion());
+                    System.out.println(deviceInfo.softwareVersion());
+                }
+            });
+        }
+
+        @Override
+        public void onConnectionFailed() {
+            if(!bean.isConnected()){
+                System.out.println("Could not connect to Bean!");
+                Context context = getApplicationContext();
+                CharSequence text = "Could not connect to Bean!";
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
+
+        }
+
+        boolean connectionStatus;
+        @Override
+        public void onDisconnected() {
+            if(Bean.isConnected()==true){
+                bean.disconnect();
+                System.out.println("Disconnected to bean!!");
+                Context context = getApplicationContext();
+                CharSequence text = "Disconnected to Bean!";
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
+        }
+
+        @Override
+        public void onError(BeanError error) {
+
+        }
+
+        @Override
+        public void onReadRemoteRssi(int rssi) {
+
+        }
+
+        @Override
+        public void onScratchValueChanged(ScratchBank bank, byte[] value) {
+
+        }
+
+        @Override
+        public void onSerialMessageReceived(byte[] data) {
+
+        }
+
+    };
 
 
 }
