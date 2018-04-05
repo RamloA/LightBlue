@@ -186,10 +186,10 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        boolean connectionStatus;
+
         @Override
         public void onDisconnected() {
-            if(Bean.isConnected()==true){
+            if(Bean.isConnected()){
                 bean.disconnect();
                 System.out.println("Disconnected to bean!!");
                 Context context = getApplicationContext();
@@ -202,7 +202,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onError(BeanError error) {
+        if(error==true){
 
+        }
         }
 
         @Override
