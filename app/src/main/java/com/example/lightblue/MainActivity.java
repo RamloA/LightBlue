@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
 import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -25,6 +24,7 @@ import com.punchthrough.bean.sdk.BeanManager;
 import com.punchthrough.bean.sdk.message.BeanError;
 import com.punchthrough.bean.sdk.message.Callback;
 import com.punchthrough.bean.sdk.message.DeviceInfo;
+import com.punchthrough.bean.sdk.message.LedColor;
 import com.punchthrough.bean.sdk.message.ScratchBank;
 
 import java.util.ArrayList;
@@ -34,9 +34,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     final List<Bean>  beans = new ArrayList<>();
     LocationManager locationManager;
-    //final Bean bean = beans[0];
 
-    //Name = "98:7B:F3:5A:CE:D9";
+    //Bean beaN = beans[0];
+
+    String Name = "98:7B:F3:5A:CE:D9";
+
+    Bean beaN;
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
@@ -121,18 +124,16 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         checkLocationPermission();
     }
+    int i=0;
+    int index=0;
+    int beanSize;
 
     @Override
     protected void onStart() {
         super.onStart();
-        BeanManager.getInstance().setScanTimeout(10);
+        BeanManager.getInstance().setScanTimeout(50);
         BeanManager.getInstance().startDiscovery(listener);
     }
-
-    public void Onconnect(View view) {
-        bean.connect(this, beanListener);
-    }
-
 
     BeanDiscoveryListener listener = new BeanDiscoveryListener() {
         @Override
@@ -152,18 +153,38 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Address",String.valueOf(bean.getDevice().getAddress()));
                 System.out.println(bean.getDevice().getAddress());    // "B4:99:4C:1E:BC:75" (example)
             }
-
+            beanSize=beans.size();
         }
+
     };
 
-    Bean bean = beans[0];
+
+    public void Onconnect(View view) {
+        for(int i=0; i<beans.size(); i++) {
+            if(beans.get(i).getDevice().getAddress().equals(Name)) {
+                beaN=beans.get(i);
+                beaN.connect(this, beanListener);
+            }
+
+            }
+    }
+
+      /* if(beaN.isConnected()){
+           Intent n_intent =new Intent(this, training.class);
+           startActivity(n_intent);
+       }*/
 
     BeanListener beanListener = new BeanListener() {
 
         @Override
         public void onConnected() {
-            System.out.println("connected to Bean!");
-            bean.readDeviceInfo(new Callback<DeviceInfo>() {
+            //System.out.println("connected to Bean!");
+            Context context = getApplicationContext();
+            CharSequence text = "connected to Bean!";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            beaN.readDeviceInfo(new Callback<DeviceInfo>() {
                 @Override
                 public void onResult(DeviceInfo deviceInfo) {
                     System.out.println(deviceInfo.hardwareVersion());
@@ -175,41 +196,39 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onConnectionFailed() {
-            if(!bean.isConnected()){
+            if(!beaN.isConnected()){
                 System.out.println("Could not connect to Bean!");
                 Context context = getApplicationContext();
                 CharSequence text = "Could not connect to Bean!";
-                int duration = Toast.LENGTH_SHORT;
+                int duration = Toast.LENGTH_LONG;
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
             }
 
         }
 
-
         @Override
         public void onDisconnected() {
-            if(Bean.isConnected()){
-                bean.disconnect();
+            //if(Bean.isConnected()){
+                beaN.disconnect();
                 System.out.println("Disconnected to bean!!");
                 Context context = getApplicationContext();
                 CharSequence text = "Disconnected to Bean!";
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
-            }
+            //}
         }
 
         @Override
         public void onError(BeanError error) {
-        if(error==true){
 
-        }
         }
 
         @Override
         public void onReadRemoteRssi(int rssi) {
 
+            rssi=beaN.getDevice().getBondState();
         }
 
         @Override
