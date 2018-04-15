@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.punchthrough.bean.sdk.Bean;
@@ -24,7 +25,6 @@ import com.punchthrough.bean.sdk.BeanManager;
 import com.punchthrough.bean.sdk.message.BeanError;
 import com.punchthrough.bean.sdk.message.Callback;
 import com.punchthrough.bean.sdk.message.DeviceInfo;
-import com.punchthrough.bean.sdk.message.LedColor;
 import com.punchthrough.bean.sdk.message.ScratchBank;
 
 import java.util.ArrayList;
@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     String Name = "98:7B:F3:5A:CE:D9";
 
     Bean beaN;
+
+    TextView tv1, tv2, tv3;
+
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
@@ -113,20 +116,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         int REQUEST_ENABLE_BT = 1;
         startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         checkLocationPermission();
+        tv1= findViewById(R.id.tv1);
+        tv2= findViewById(R.id.tv2);
+        tv2= findViewById(R.id.tv3);
     }
-    int i=0;
-    int index=0;
-    int beanSize;
 
     @Override
     protected void onStart() {
@@ -148,31 +153,69 @@ public class MainActivity extends AppCompatActivity {
             // This is called when the scan times out, defined by the .setScanTimeout(int seconds) method
 
             for (Bean bean : beans) {
-                Log.d("Bluetooth", String.valueOf(bean.getDevice().getName()));
-                System.out.println(bean.getDevice().getName());   // "Bean"              (example)
-                Log.d("Address",String.valueOf(bean.getDevice().getAddress()));
-                System.out.println(bean.getDevice().getAddress());    // "B4:99:4C:1E:BC:75" (example)
-            }
-            beanSize=beans.size();
-        }
+               Log.d("Bluetooth", String.valueOf(bean.getDevice().getName()));
+                //System.out.println(bean.getDevice().getName());   // "Bean"              (example)
+               Log.d("Address",String.valueOf(bean.getDevice().getAddress()));
+               // System.out.println(bean.getDevice().getAddress());    // "B4:99:4C:1E:BC:75" (example)
 
+             // tv1.setText(String.valueOf(bean.getDevice().getName()));
+
+
+            }
+
+            for(int i=0; i<beans.size(); i++){
+                if(i==0) {
+                    tv1.setText(beans.get(0).getDevice().getAddress());
+                }
+                if(i==1) {
+                    tv2.setText(beans.get(1).getDevice().getAddress());
+                }
+                if(i==2) {
+                    tv3.setText(beans.get(2).getDevice().getAddress());
+                }
+            }
+
+        }
     };
 
-
     public void Onconnect(View view) {
-        for(int i=0; i<beans.size(); i++) {
+
+        /*for(int i=0; i<beans.size(); i++) {
             if(beans.get(i).getDevice().getAddress().equals(Name)) {
                 beaN=beans.get(i);
                 beaN.connect(this, beanListener);
             }
+        }*/
 
-            }
+    }
+   public void ont_v1 (View view) {
+       for (int i = 0; i < beans.size(); i++) {
+           if (beans.get(i).getDevice().getAddress().equals(tv1)) {
+               beaN = beans.get(i);
+               beaN.connect(this, beanListener);
+           }
+       }
+   }
+
+   public void ont_v2 (View view){
+       for (int i = 0; i < beans.size(); i++) {
+           if (beans.get(i).getDevice().getAddress().equals(tv2)) {
+               beaN = beans.get(i);
+               beaN.connect(this, beanListener);
+           }
+       }
+
     }
 
-      /* if(beaN.isConnected()){
-           Intent n_intent =new Intent(this, training.class);
-           startActivity(n_intent);
-       }*/
+    public void ont_v3 (View view){
+        for (int i = 0; i < beans.size(); i++) {
+            if (beans.get(i).getDevice().getAddress().equals(tv3)) {
+                beaN = beans.get(i);
+                beaN.connect(this, beanListener);
+            }
+        }
+    }
+
 
     BeanListener beanListener = new BeanListener() {
 
@@ -209,7 +252,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onDisconnected() {
-            //if(Bean.isConnected()){
                 beaN.disconnect();
                 System.out.println("Disconnected to bean!!");
                 Context context = getApplicationContext();
@@ -217,7 +259,6 @@ public class MainActivity extends AppCompatActivity {
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
-            //}
         }
 
         @Override
