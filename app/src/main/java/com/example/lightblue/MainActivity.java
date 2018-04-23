@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Parcelable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -22,6 +23,8 @@ import com.punchthrough.bean.sdk.Bean;
 import com.punchthrough.bean.sdk.BeanDiscoveryListener;
 import com.punchthrough.bean.sdk.BeanListener;
 import com.punchthrough.bean.sdk.BeanManager;
+import com.punchthrough.bean.sdk.internal.BeanMessageID;
+import com.punchthrough.bean.sdk.message.Acceleration;
 import com.punchthrough.bean.sdk.message.BeanError;
 import com.punchthrough.bean.sdk.message.Callback;
 import com.punchthrough.bean.sdk.message.DeviceInfo;
@@ -29,6 +32,9 @@ import com.punchthrough.bean.sdk.message.ScratchBank;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import auto.parcel.AutoParcel;
+import okio.Buffer;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -41,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     Bean beaN;
 
-    TextView tv1, tv2, tv3;
+    TextView  tv1, tv2, tv3;
 
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -145,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         public void onBeanDiscovered(Bean bean, int rssi) {
             beans.add(bean);
             Log.d("Bluetooth", String.valueOf(bean.getDevice().getName()));
-            Log.d("Address",String.valueOf(bean.getDevice().getAddress()));
+            Log.d("Address", String.valueOf(bean.getDevice().getAddress()));
         }
 
         @Override
@@ -153,70 +159,13 @@ public class MainActivity extends AppCompatActivity {
             // This is called when the scan times out, defined by the .setScanTimeout(int seconds) method
 
             for (Bean bean : beans) {
-               Log.d("Bluetooth", String.valueOf(bean.getDevice().getName()));
+                Log.d("Bluetooth", String.valueOf(bean.getDevice().getName()));
                 //System.out.println(bean.getDevice().getName());   // "Bean"              (example)
-               Log.d("Address",String.valueOf(bean.getDevice().getAddress()));
-               // System.out.println(bean.getDevice().getAddress());    // "B4:99:4C:1E:BC:75" (example)
-
-             // tv1.setText(String.valueOf(bean.getDevice().getName()));
-
-
+                Log.d("Address", String.valueOf(bean.getDevice().getAddress()));
+                // System.out.println(bean.getDevice().getAddress());    // "B4:99:4C:1E:BC:75" (example);
             }
-
-            for(int i=0; i<beans.size(); i++){
-                if(i==0) {
-                    tv1.setText(beans.get(0).getDevice().getAddress());
-                }
-                if(i==1) {
-                    tv2.setText(beans.get(1).getDevice().getAddress());
-                }
-                if(i==2) {
-                    tv3.setText(beans.get(2).getDevice().getAddress());
-                }
-            }
-
         }
     };
-
-    public void Onconnect(View view) {
-
-        /*for(int i=0; i<beans.size(); i++) {
-            if(beans.get(i).getDevice().getAddress().equals(Name)) {
-                beaN=beans.get(i);
-                beaN.connect(this, beanListener);
-            }
-        }*/
-
-    }
-   public void ont_v1 (View view) {
-       for (int i = 0; i < beans.size(); i++) {
-           if (beans.get(i).getDevice().getAddress().equals(tv1)) {
-               beaN = beans.get(i);
-               beaN.connect(this, beanListener);
-           }
-       }
-   }
-
-   public void ont_v2 (View view){
-       for (int i = 0; i < beans.size(); i++) {
-           if (beans.get(i).getDevice().getAddress().equals(tv2)) {
-               beaN = beans.get(i);
-               beaN.connect(this, beanListener);
-           }
-       }
-
-    }
-
-    public void ont_v3 (View view){
-        for (int i = 0; i < beans.size(); i++) {
-            if (beans.get(i).getDevice().getAddress().equals(tv3)) {
-                beaN = beans.get(i);
-                beaN.connect(this, beanListener);
-            }
-        }
-    }
-
-
     BeanListener beanListener = new BeanListener() {
 
         @Override
@@ -239,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onConnectionFailed() {
-            if(!beaN.isConnected()){
+            if (!beaN.isConnected()) {
                 System.out.println("Could not connect to Bean!");
                 Context context = getApplicationContext();
                 CharSequence text = "Could not connect to Bean!";
@@ -252,13 +201,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onDisconnected() {
-                beaN.disconnect();
-                System.out.println("Disconnected to bean!!");
-                Context context = getApplicationContext();
-                CharSequence text = "Disconnected to Bean!";
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
+            beaN.disconnect();
+            Context context = getApplicationContext();
+            CharSequence text = "Disconnected to Bean!";
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
         }
 
         @Override
@@ -268,8 +216,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReadRemoteRssi(int rssi) {
-
-            rssi=beaN.getDevice().getBondState();
+            Context context = getApplicationContext();
+            int SS= beaN.getDevice().getBondState();
+            //CharSequence text = "SS";
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(context, SS, duration);
+            toast.show();
         }
 
         @Override
@@ -284,5 +236,61 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
+    public void On_Scan(View view) {
+       /* for (int i = 0; i < beans.size(); i++) {
+            if (i == 0) {
+               // tv1.setText(beans.get(0).getDevice().getAddress());
+            }
+        }*/
+      Acceleration();
+    }
+
+        public void Onconnect(View view) {
+            for (int i = 0; i < beans.size(); i++) {
+                if (beans.get(i).getDevice().getAddress().equals(Name)) {
+                    beaN = beans.get(i);
+                    beaN.connect(this, beanListener);
+                }
+            }
+        }
+
+       /*   public void ont_v1(View view) {
+            for (int i = 0; i < beans.size(); i++) {
+                if (beans.get(i).getDevice().getAddress().equals(tv1.getText())) {
+                    beaN = beans.get(i);
+                    beaN.connect(this, beanListener);
+                }
+            }
+        }*/
+
+       @AutoParcel
+       public abstract class Acceleration implements Parcelable {
+           public static Acceleration fromPayload(Buffer buffer) {
+               int x = buffer.readShortLe();
+               int y = buffer.readShortLe();
+               int z = buffer.readShortLe();
+               int sensitivity = buffer.readByte() & 0xff;
+               double lsbGConversionFactor = sensitivity / 512.0;
+               return new AutoParcel_Acceleration(x * lsbGConversionFactor, y * lsbGConversionFactor, z * lsbGConversionFactor);
+
+           }
+
+           public abstract double x();
+
+           public abstract double y();
+
+           public abstract double z();
+       }
+
+   // BeanMessageID beanMessage = new BeanMessageID(){
+    /* public void Acceleration(){
+          /*  beaN.readAcceleration(new Callback<Acceleration>(){
+                @Override
+                public void onResult(Acceleration result) {
+                    Log.i("Acceleration", String.copyValueOf(result));
+                }
+            });*/
+
+   // };
 
 }

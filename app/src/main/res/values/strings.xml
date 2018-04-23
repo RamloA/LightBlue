@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">LightBlue</string>
     <string name="Connect">Connect</string>
+    <string name="Scan">Scan</string>
 </resources>
