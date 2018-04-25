@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import auto.parcel.AutoParcel;
+import android.os.Parcelable;
 import okio.Buffer;
 
 
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     String Name = "98:7B:F3:5A:CE:D9";
 
-    Bean beaN;
+    Bean myBean;
 
     TextView  tv1, tv2, tv3;
 
@@ -176,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             int duration = Toast.LENGTH_LONG;
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
-            beaN.readDeviceInfo(new Callback<DeviceInfo>() {
+            myBean.readDeviceInfo(new Callback<DeviceInfo>() {
                 @Override
                 public void onResult(DeviceInfo deviceInfo) {
                     System.out.println(deviceInfo.hardwareVersion());
@@ -188,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onConnectionFailed() {
-            if (!beaN.isConnected()) {
+            if (!myBean.isConnected()) {
                 System.out.println("Could not connect to Bean!");
                 Context context = getApplicationContext();
                 CharSequence text = "Could not connect to Bean!";
@@ -201,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onDisconnected() {
-            beaN.disconnect();
+            myBean.disconnect();
             Context context = getApplicationContext();
             CharSequence text = "Disconnected to Bean!";
             int duration = Toast.LENGTH_SHORT;
@@ -217,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReadRemoteRssi(int rssi) {
             Context context = getApplicationContext();
-            int SS= beaN.getDevice().getBondState();
+            int SS= myBean.getDevice().getBondState();
             //CharSequence text = "SS";
             int duration = Toast.LENGTH_SHORT;
             Toast toast = Toast.makeText(context, SS, duration);
@@ -248,8 +249,8 @@ public class MainActivity extends AppCompatActivity {
         public void Onconnect(View view) {
             for (int i = 0; i < beans.size(); i++) {
                 if (beans.get(i).getDevice().getAddress().equals(Name)) {
-                    beaN = beans.get(i);
-                    beaN.connect(this, beanListener);
+                    myBean = beans.get(i);
+                    myBean.connect(this, beanListener);
                 }
             }
         }
@@ -263,16 +264,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }*/
 
-       @AutoParcel
+    /*   @AutoParcel
        public abstract class Acceleration implements Parcelable {
-           public static Acceleration fromPayload(Buffer buffer) {
+           public Acceleration fromPayload(Buffer buffer) {
                int x = buffer.readShortLe();
                int y = buffer.readShortLe();
                int z = buffer.readShortLe();
                int sensitivity = buffer.readByte() & 0xff;
                double lsbGConversionFactor = sensitivity / 512.0;
-               return new AutoParcel_Acceleration(x * lsbGConversionFactor, y * lsbGConversionFactor, z * lsbGConversionFactor);
-
+               return new Acceleration_AutoParcel(x * lsbGConversionFactor, y * lsbGConversionFactor, z * lsbGConversionFactor);;
            }
 
            public abstract double x();
@@ -280,17 +280,57 @@ public class MainActivity extends AppCompatActivity {
            public abstract double y();
 
            public abstract double z();
-       }
+       }*/
+
+
+    int num;
 
    // BeanMessageID beanMessage = new BeanMessageID(){
-    /* public void Acceleration(){
-          /*  beaN.readAcceleration(new Callback<Acceleration>(){
-                @Override
+     public void Acceleration(){
+          myBean.readAcceleration(new Callback<Acceleration>(){
+              @Override
                 public void onResult(Acceleration result) {
-                    Log.i("Acceleration", String.copyValueOf(result));
+                    tv1.append("\nBean #" + num + ": " + result.x() + ", " + result.y() + ", " + result.z());
+                     tv1.invalidate();
+                   // Log.i("Acceleration", Sfinal);
                 }
-            });*/
+            });
 
-   // };
+    };
+
+    /*class MyThread implements Runnable {
+
+        TextView tv=tv1;
+        int num;
+        Bean b=myBean;
+        Thread th;
+
+        MyThread(TextView tv1, int num1, Bean b1) {
+            tv = tv1;
+            num = num1;
+            b = b1;
+            th = new Thread(this);
+            th.setPriority(Thread.MAX_PRIORITY);
+            th.start();
+        }
+
+        @Override
+        public void run() {
+            for(int i = 0; i < 60; i++) {
+                b.readAcceleration(new Callback<Acceleration>() {
+                    @Override
+                    public void onResult(Acceleration result) {
+                        tv.append("\nBean #" + num + ": " + result.x() + ", " + result.y() + ", " + result.z());
+                        tv.invalidate();
+                    }
+                });
+                try {
+                    th.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }*/
 
 }
